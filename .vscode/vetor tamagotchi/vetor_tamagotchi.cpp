@@ -51,10 +51,6 @@ class Tamagotchi{
                 return false;
             }
         }
-        void criarpet(Tamagotchi npet){
-
-
-        }
         void show(){
             cout << "E:"<< getEnergia() <<"/"<< getEnergiaMax() <<", ";
             cout << "S:"<< getFome() <<"/"<< getFomeMax()<<", ";
@@ -144,9 +140,25 @@ class Tamagotchi{
 };
 struct Jogo{
     Tamagotchi pet;
-    void comecar(){
+    void opcoes(string dono){
+        cout << "-------------------Casa do(a) "<< dono<<"-------------------"<< endl
+             << "###########################################"<< endl
+             << "Escolha uma opção para fazer com seus pets:"<< endl
+             << "         Criar          "<< endl
+             << "          Ver           "<< endl
+             << "        Brincar         "<< endl
+             << "       Alimentar        "<< endl
+             << "         Dormir         "<< endl
+             << "         Banhar         "<< endl
+             << "          Sair          "<< endl
+             << "###########################################"<< endl
+             << "------------------------------------------------------------"<< endl;
+    }
+    void comecar(string dono){
         string line;
         while(true){
+            system("clear||cls");
+            opcoes(dono);
             getline(cin, line);
             stringstream ss(line);
             cout << "$" << line << "\n";
@@ -173,24 +185,33 @@ struct Jogo{
             }
         }
     }
+    
 };
 
 int main(){
     Jogo jogo;
+    string dono;
     string line;
     string cmd;
     while(true){
-        cout << "---------INÍCIO---------"
-             << "         Começar        "
-             << "          Sair          "
-             << "------------------------";
+        system("clear||cls");
+        cout << "---------INÍCIO---------"<< endl
+             << "         Começar        "<< endl
+             << "          Sair          "<< endl
+             << "------------------------"<< endl;
             getline(cin, line);
             stringstream ss(line);
             ss >> cmd;
-            if(cmd == "começar" || cmd == "comecar"){
-                jogo.comecar();
+            if(cmd == "Começar" || cmd == "comecar"){
+                system("clear||cls");
+                cout << "Vamos começar. Digite o seu nome:\n";
+                getline(cin, line);
+                stringstream ss(line);
+                ss >> dono;
+                jogo.comecar(dono);
             }
             else if(cmd=="sair"){
+                system("clear||cls");
                 return false;
             }else{
                 cout << "Comando invalido\n";
