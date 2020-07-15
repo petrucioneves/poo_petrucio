@@ -4,10 +4,13 @@
 #include <vector>
 #include<bits/stdc++.h>
 
+
 using namespace std;
+string global;
 class Tamagotchi{
     public:
-        Tamagotchi(int qtd_energia = 0, int qtd_fome=0, int qtd_limpeza=0){
+        Tamagotchi( string nome2="0", int qtd_energia = 0, int qtd_fome=0, int qtd_limpeza=0){
+            petnome=nome2;
             energiaMax=qtd_energia;
             fomeMax=qtd_fome;
             limpezaMax=qtd_limpeza;
@@ -16,6 +19,10 @@ class Tamagotchi{
             limpeza=qtd_limpeza;
             diamantes=idade=0;
             vida=true;
+        }
+        ~Tamagotchi(){}
+        string getNome(){
+            return petnome;
         }
         int getEnergia(){
             return energia;
@@ -52,10 +59,11 @@ class Tamagotchi{
             }
         }
         void show(){
-            cout << "E:"<< getEnergia() <<"/"<< getEnergiaMax() <<", ";
-            cout << "S:"<< getFome() <<"/"<< getFomeMax()<<", ";
-            cout << "L:"<< getLimpeza() <<"/"<< getLimpezaMax() <<", ";
-            cout << "D:"<< getDiamantes() <<", I:"<< getIdade() <<endl;
+            cout << "Nome:" << getNome() << endl
+                 << "Energia:" << getEnergia() <<"/"<< getEnergiaMax() <<", "
+                 << "Fome:" << getFome() <<"/"<< getFomeMax()<<", "
+                 << "Limpeza:" << getLimpeza() <<"/"<< getLimpezaMax() <<", "
+                 << "Diamates:" << getDiamantes() <<", Idade:"<< getIdade() << endl;
         }
         void brincar(){
             if(!vivo()){
@@ -98,7 +106,7 @@ class Tamagotchi{
             idade+=2;
         }
     private:
-        vector <Tamagotchi> pet;
+        string petnome;
         int energiaMax, fomeMax, limpezaMax;
         int energia, fome, limpeza;
         int diamantes, idade;
@@ -139,83 +147,154 @@ class Tamagotchi{
         }
 };
 struct Jogo{
-    Tamagotchi pet;
-    void opcoes(string dono){
-        cout << "-------------------Casa do(a) "<< dono<<"-------------------"<< endl
-             << "###########################################"<< endl
-             << "Escolha uma opção para fazer com seus pets:"<< endl
-             << "         Criar          "<< endl
-             << "          Ver           "<< endl
-             << "        Brincar         "<< endl
-             << "       Alimentar        "<< endl
-             << "         Dormir         "<< endl
-             << "         Banhar         "<< endl
-             << "          Sair          "<< endl
-             << "###########################################"<< endl
-             << "------------------------------------------------------------"<< endl;
-    }
-    void comecar(string dono){
-        string line;
-        while(true){
-            system("clear||cls");
-            opcoes(dono);
+    private:
+        vector<Tamagotchi> pet;                                                 //criação do vetor pet
+        void remove(size_t pos){                                                //função feita para remover o pet do vetor depois que morre
+            auto it = pet.begin();
+            it+=pos;
+            pet.erase(it);
+        }
+        void criar(){                                                           //função feita para criar os pets:
+            cout << "$" << line << "\n";                                        //chamando e passando os paramentos para o contrutor Tamagotchi
+            cout << "Digite o nome, a energia, a fome e a limpeza do seu pet:\n";
+            string nome="0";
+            int energia=0,fome=0,limpeza=0;
             getline(cin, line);
             stringstream ss(line);
-            cout << "$" << line << "\n";
-            string cmd;
-            ss >> cmd; //pegando o primeiro token
-            if(line == "end"){
-                break;
-            }else if(cmd == "init"){
-                int energia,fome,limpeza;
-                ss >> energia >> fome >> limpeza;
-                pet=Tamagotchi(energia,fome, limpeza);
-            }else if(cmd == "show"){
-                pet.show();
-            }else if(cmd == "play"){
-                pet.brincar();
-            }else if(cmd == "eat"){
-                pet.comer();
-            }else if(cmd == "sleep"){
-                pet.dormir();
-            }else if(cmd == "shower"){
-                pet.banhar();
-            }else{
-                cout << "Comando invalido\n";
+            ss >> nome >> energia >> fome >> limpeza;
+            if(nome=="0")nome="Bichinho";
+            Tamagotchi *aux = new Tamagotchi(nome,energia,fome,limpeza);
+            pet.push_back(*aux);
+        }
+        void mostrar(){                                                         //função que mostra todos os pets
+            cout << "--------------------------------------------------------"<< endl;
+            for(size_t i = 0; i < pet.size(); i++){
+                pet[i].show();
+                cout << endl;
+            }
+            cout << "--------------------------------------------------------"<< endl;
+        }
+        int procurarPet(string animal){                                         //função para procurar os pets no vetor pelo nome
+            for(size_t i = 0; i < pet.size(); i++){
+                if(pet[i].getNome()==animal) return i;
+            }
+            return 0;
+        }
+        void verifica(){                                                        //função feita para verificar quais os pets mortos e assim remove-los
+            if(pet.size()!=0){                                                  //e assim atualiza a lista de pets no vetor
+                for(size_t i = 0; i < pet.size(); i++){
+                if(!pet[i].vivo()) remove(i);
+                }
             }
         }
-    }
+    public:
+        string line;
+        void comecar(string dono){
+            while(true){
+                verifica();
+                cout << "-------------------Casa do(a) "<< dono<<"-------------------"<< endl
+                     << "###########################################"<< endl
+                     << "Escolha uma opção para fazer com seus pets:"<< endl
+                     << "         Criar          "<< endl
+                     << "          Ver           "<< endl
+                     << "        Brincar         "<< endl
+                     << "       Alimentar        "<< endl
+                     << "         Dormir         "<< endl
+                     << "         Banhar         "<< endl
+                     << "          Sair          "<< endl
+                     << "###########################################"<< endl
+                     << "------------------------------------------------------------"<< endl;
+                getline(cin, line);
+                stringstream ss(line);
+                string cmd;
+                ss >> cmd; //pegando o primeiro token
+                if(line == "sair"){
+                    system("clear||cls");
+                    break;
+                }else if(cmd == "Criar" || cmd == "criar"){
+                    system("clear||cls");
+                    criar();
+                }else if(cmd == "Ver" || cmd == "ver"){
+                    system("clear||cls");
+                    cout << "$" << line << "\n";
+                    if(pet.size()==0)cout << "Você não possui pets\n";
+                    else mostrar();
+                }else if(cmd == "Brincar" || cmd == "brincar"){
+                    system("clear||cls");
+                    cout << "$" << line << "\n";
+                    if(pet.size()==0)cout << "Você não possui pets\n";
+                    else{
+                        cout << "Quais dos pets abaixo vai querer brincar?\n";
+                        mostrar();
+                        cout << "Digite o nome do pet desejado:\n";
+                        string bicchinho;
+                        getline(cin,line);
+                        stringstream ss(line);
+                        ss >> bicchinho;
+                        pet[procurarPet(bicchinho)].brincar();
+                    }
+                    cout << "--------------------------------------------------------"<< endl;
+                }else if(cmd == "Alimentar" || cmd == "alimentar"){
+                    system("clear||cls");
+                    cout << "$" << line << "\n";
+                    if(pet.size()==0)cout << "Você não possui pets\n";
+                    else{    
+                        cout << "Quais dos pets abaixo vai querer alimentar?\n";
+                        mostrar();
+                        cout << "Digite o nome do pet desejado:\n";
+                        string bicchinho;
+                        getline(cin,line);
+                        stringstream ss(line);
+                        ss >> bicchinho;
+                        pet[procurarPet(bicchinho)].comer();
+                    }
+                    cout << "--------------------------------------------------------"<< endl;
+                }else if(cmd == "Dormir" || cmd == "dormir"){
+                    system("clear||cls");
+                    cout << "$" << line << "\n";
+                    if(pet.size()==0)cout << "Você não possui pets\n";
+                    else{
+                        cout << "Quais dos pets abaixo vai querer colocar para dormir?\n";
+                        mostrar();
+                        cout << "Digite o nome do pet desejado:\n";
+                        string bicchinho;
+                        getline(cin,line);
+                        stringstream ss(line);
+                        ss >> bicchinho;
+                        pet[procurarPet(bicchinho)].dormir();
+                    }
+                    cout << "--------------------------------------------------------"<< endl;
+                }else if(cmd == "Banhar" || cmd == "banhar"){
+                    system("clear||cls");
+                    cout << "$" << line << "\n";
+                    if(pet.size()==0)cout << "Você não possui pets\n";
+                    else{
+                        cout << "Quais dos pets abaixo vai querer dar banho?\n";
+                        mostrar();
+                        cout << "Digite o nome do pet desejado:\n";
+                        string bicchinho;
+                        getline(cin,line);
+                        stringstream ss(line);
+                        ss >> bicchinho;
+                        pet[procurarPet(bicchinho)].banhar();
+                    }
+                    cout << "--------------------------------------------------------"<< endl;
+                }else{
+                    cout << "Comando invalido\n";
+                }
+            }
+        }
     
 };
 
 int main(){
     Jogo jogo;
-    string dono;
+    string nomedono;
     string line;
-    string cmd;
-    while(true){
-        system("clear||cls");
-        cout << "---------INÍCIO---------"<< endl
-             << "         Começar        "<< endl
-             << "          Sair          "<< endl
-             << "------------------------"<< endl;
-            getline(cin, line);
-            stringstream ss(line);
-            ss >> cmd;
-            if(cmd == "Começar" || cmd == "comecar"){
-                system("clear||cls");
-                cout << "Vamos começar. Digite o seu nome:\n";
-                getline(cin, line);
-                stringstream ss(line);
-                ss >> dono;
-                jogo.comecar(dono);
-            }
-            else if(cmd=="sair"){
-                system("clear||cls");
-                return false;
-            }else{
-                cout << "Comando invalido\n";
-            }
-    }
+    cout << "Vamos começar. Digite o seu nome:\n";
+    getline(cin, line);
+    stringstream ss(line);
+    ss >> nomedono;
+    jogo.comecar(nomedono);
     return 0;
 }
