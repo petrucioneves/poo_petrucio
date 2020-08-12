@@ -5,30 +5,27 @@
 #include <iomanip>
 struct Espiral{
     //atributos
-    std::string nome;
-    int qtd=0;
-    float preco=0.0;
+    std::string nome;   //nome do produto
+    int qtd=0;          //quantidade do produto na espiral
+    float preco=0.00;    //preço do produto
     
-    Espiral(std::string nome= "", int qtd=0, float preco=0.00){
+    Espiral(std::string nome= "", int qtd=0, float preco=0.00){     //construtor da espiral
         this->nome=nome;
         this->qtd=qtd;
         this->preco=preco;
     }
     std::string toString(){
-        std::stringstream saida;
         if(nome==""){
-            saida << " [ empty : " << std::to_string(qtd) << " U : " <<std::to_string(preco) << " RS ]";
-            return saida.str();
+            return + " [ empty : " + std::to_string(qtd) + " U : " ;
         }
-        saida << " [ " << nome << " : " << std::to_string(qtd) << " U : " << std::to_string(preco) << " RS ]";
-        return saida.str();
+        return + " [ " + nome + " : " + std::to_string(qtd) + " U : ";
     }
 };
 
 struct Maquina{
     std::vector<Espiral> espirais;
-    float saldoCliente=0;
-    float lucro=0;
+    float saldoCliente=0.00;
+    float lucro=0.00;
     int maxProdutos=0;
     public:
         Maquina(int nespirais, int maxProdutos){
@@ -39,13 +36,12 @@ struct Maquina{
                 espirais.push_back(*aux);
             }
         }
-        std::string toString2(){
-            std::stringstream saida;
-            saida << "Saldo:"<< std::to_string(saldoCliente) << "\n";
+        void toString2(){
+            std::cout.precision(3);
+            std::cout << "Saldo:"<< saldoCliente << "\n";
             for(int i=0; i< espirais.size(); i++){
-                saida << std::to_string(i)  << espirais[i].toString()<<"\n";
+                std::cout << std::to_string(i)  << espirais[i].toString()<<  espirais[i].preco << " RS ]\n";
             }
-            return saida.str();
         }
         float getSaldo(){
             return this->saldoCliente;
@@ -86,11 +82,17 @@ struct Maquina{
             return true;
         }
         bool vender(int indice){
-            if(espirais[indice].nome==""){
+            if(indice>espirais.size()){
+                std::cout <<"fail: indice invalido\n";
+                return false;
+            }
+            else if(espirais[indice].nome==""){
                 std::cout <<"fail: não tem nada nessa espiral\n";
+                return false;
             }
             else if(espirais[indice].qtd==0){
                 std::cout <<"fail: não tem mais produto nessa espiral\n";
+                return false;
             }
             else if(getSaldo()>0 && getSaldo()>= espirais[indice].preco && espirais[indice].qtd>0){
                 this->saldoCliente-=espirais[indice].preco;
@@ -100,31 +102,54 @@ struct Maquina{
             std::cout <<"fail: Você não tem saldo suficiente\n";
             return false;
         }
-        void remove(int indice){
-            auto i= espirais.begin();
-            i+=indice;
-            espirais.erase(i);
+        void reporProduto(int indice, int qtd){
+            if(indice>espirais.size()) std::cout << "fail: indice inválido\n";
+            else if(espirais[indice].nome=="") std::cout << "fail: Não tem produto nessa espiral\n";
+            else if(espirais[indice].qtd+qtd>maxProdutos) std::cout <<"fail: não cabe essa quantidade na espiral\n";
+            else if(espirais[indice].qtd+qtd<=maxProdutos){ 
+                espirais[indice].qtd+=qtd;
+                std::cout << "Você adicionou mais "<< qtd << " de " << espirais[indice].nome << std::endl;
+            }    
+        }
+        void addEspirais(){
+            espirais.push_back(Espiral());
+        }
+        void inserirNovo(int indice){
+            auto it = espirais.begin() + indice;
             Espiral *aux=new Espiral();
-            espirais.push_back(*aux);
+            if(it>=espirais.end()) espirais.push_back(*aux);
+            else if(it >= espirais.begin() && it <espirais.end()) espirais.insert(it,*aux);
+        }
+        bool remove(int indice){
+            if(indice >= 0 || indice < (int) espirais.size()){    
+                auto i= espirais.begin() + indice;
+                espirais.erase(i);
+                inserirNovo(indice);
+                return true;
+            }
+            std::cout << "fail: indice invalido\n";
+            return false;
         }
         void removeAll(){
             espirais.clear();
         }
 };
 struct Terminal{
-    Maquina *maquina;
+    Maquina *maquina=nullptr;
     void painel(){
         std::string line;
         while(true){
             std::cout << "-------------Junkfood-------------"<< std::endl
                       << "##################################"<< std::endl
-                      << "               init        "<< std::endl             //coloca quantas crianças quiser na fila
-                      << "               show        "<< std::endl             //coloca uma criança de cada vez no pula pula
-                      << "               set         "<< std::endl             //retira uma criança tanto da fila quanto do pula pula                          << "              limpar       "<< std::endl             //mostra quem esta na fila e no pula pula
-                      << "             dinheiro      "<< std::endl             //mostra o valor total arrecadado no pula pula
-                      << "              troco        "<< std::endl             //paga a todo o valor que a criança deve ao pula pula
-                      << "              limpar         "<< std::endl
-                      << "             comprar       "<< std::endl             //mostra todas as contas
+                      << "               init        "<< std::endl             //inicia uma maquina com a quantidade de espirais e qtd max para cada produto
+                      << "               show        "<< std::endl             //mostra todas as espirais e o saldo
+                      << "               set         "<< std::endl             //coloca um produto em uma espiral desejada
+                      << "             dinheiro      "<< std::endl             //adiciona dinheiro no saldo
+                      << "              troco        "<< std::endl             //dar o troco da pessoa, se caso não tiver comprado nada, ele devolve tudo
+                      << "              repor        "<< std::endl             //repõe a quantidade de um produto desejado
+                      << "            addespiral     "<< std::endl             //coloca mais espirais na maquina
+                      << "              limpar       "<< std::endl             //limpa uma espiral desejada
+                      << "             comprar       "<< std::endl             //compra um produto, caso tenha saldo suficiente
                       << "               end         "<< std::endl             //encerra o programa
                       << "##################################"<< std::endl
                       << "----------------------------------------------"<< std::endl;
@@ -134,21 +159,29 @@ struct Terminal{
             ss >> cmd; //pegando o primeiro token
             if(line == "end"){
                 system("clear||cls");
-                if(maquina->espirais.size()!=0){
+                if(maquina!=nullptr){
+                    free(maquina);
+                    if(maquina->espirais.size()!=0 ){
                     maquina->removeAll();
-                }
+                    }
+                }    
                 break;
             }else if(cmd == "init"){
                 system("clear||cls");
                 std::cout << "$" << line << "\n";
                 int nespirais, maxprodutos;
                 ss >> nespirais>>maxprodutos;
-                maquina=new Maquina(nespirais, maxprodutos);
+                if(maquina==nullptr) maquina=new Maquina(nespirais, maxprodutos);
+                else{
+                    free(maquina);
+                    maquina=new Maquina(nespirais, maxprodutos);
+                }
                 std::cout << "------------------------------------------------"<< std::endl;
             }else if(cmd == "show" ){
                 system("clear||cls");
                 std::cout << "$" << line << "\n";
-                std::cout << maquina->toString2()<< std::endl;
+                if(maquina!=nullptr) maquina->toString2();
+                else std::cout << "fail:crie uma máquina primeiro\n";
                 std::cout << "------------------------------------------------"<< std::endl;
             }else if(cmd == "set" ){
                 system("clear||cls");
@@ -157,40 +190,59 @@ struct Terminal{
                 float valor;
                 std::string nome;
                 ss >> indice >>nome >> qtd >> valor;
-                maquina->alterarEspiral(indice,nome,qtd,valor);
+                if(maquina!=nullptr) maquina->alterarEspiral(indice,nome,qtd,valor);
+                else std::cout << "fail:crie uma máquina primeiro\n";
                 std::cout << "------------------------------------------------"<< std::endl;
             }else if(cmd == "dinheiro" ){
                 system("clear||cls");
                 std::cout << "$" << line << "\n";
                 float valor;
                 ss >> valor;
-                maquina->inserirDinheiro(valor);
+                if(maquina!=nullptr) maquina->inserirDinheiro(valor);
+                else std::cout << "fail:crie uma máquina primeiro\n";
                 std::cout << "------------------------------------------------"<< std::endl;
             }else if(cmd == "troco"){
                 system("clear||cls");
                 std::cout << "$" << line << "\n";
                 float troco;
-                troco=maquina->pedirTroco();
-                std::cout.precision(3);
-                std::cout << "Você recebeu "<< troco<< " RS\n";    
+                if(maquina!=nullptr){
+                    troco=maquina->pedirTroco();
+                    std::cout.precision(3);
+                    std::cout << "Você recebeu "<< troco<< " RS\n";
+                }
+                else std::cout << "fail:crie uma máquina primeiro\n";        
+                std::cout << "------------------------------------------------"<< std::endl;
+            }else if(cmd == "repor"){
+                system("clear||cls");
+                std::cout << "$" << line << "\n";
+                int indice, qtd;
+                ss >> indice >> qtd;
+                if(maquina!=nullptr){
+                    maquina->reporProduto(indice, qtd);
+                }
+                else std::cout << "fail:crie uma máquina primeiro\n";        
+                std::cout << "------------------------------------------------"<< std::endl;
+            }else if(cmd == "addespiral"){
+                system("clear||cls");
+                std::cout << "$" << line << "\n";
+                if(maquina!=nullptr) maquina->addEspirais();
+                else std::cout << "fail:crie uma máquina primeiro\n";
                 std::cout << "------------------------------------------------"<< std::endl;
             }else if(cmd == "limpar"){
                 system("clear||cls");
                 std::cout << "$" << line << "\n";
                 int indice;
                 ss >> indice;
-                if(maquina->espirais[indice].nome!=""){
-                    maquina->remove(indice);
-                }
+                if(maquina==nullptr) std::cout << "fail:crie uma máquina primeiro\n";
+                else if(maquina->espirais[indice].nome!="") maquina->remove(indice);
                 std::cout << "------------------------------------------------"<< std::endl;
             }else if(cmd == "comprar"){
                 system("clear||cls");
                 std::cout << "$" << line << "\n";
                 int indice;
                 ss >> indice;
-                if(maquina->vender(indice)){
-                    std::cout << "Você comprou um "<< maquina->espirais[indice].nome << "\n";
-                }
+                if(maquina==nullptr ) std::cout << "fail:crie uma máquina primeiro\n";
+                else if(maquina->vender(indice))std::cout << "Você comprou um "<< maquina->espirais[indice].nome << "\n"; 
                 std::cout << "------------------------------------------------"<< std::endl;
             }else{
                 system("clear||cls");
