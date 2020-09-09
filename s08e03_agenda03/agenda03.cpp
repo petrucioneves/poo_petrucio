@@ -36,6 +36,7 @@ class Contato{
 public:
     string name;
     vector<Fone> fones;
+    bool favorito;
     Contato(string name = "", vector<Fone> fones = vector<Fone>()):
         name(name), fones(fones){
     }
@@ -85,7 +86,6 @@ T get(stringstream& ss){
 }
 struct Agenda{
     vector<Contato> contatos;
-    
     
     int findContato(string name){
         for(int i=0;i< (int) contatos.size() ;i++){
@@ -152,6 +152,19 @@ struct Agenda{
     }
     
     
+};
+class servicoFavoitagem{
+    Agenda agenda;
+    vector<Contato> favoritos;
+    void favoritar(string id){
+
+    }
+    void desfavoritar(string id){
+
+    }
+    vector<Contato> getfavoritos(){
+        return favoritos;
+    }
 };
 
 
