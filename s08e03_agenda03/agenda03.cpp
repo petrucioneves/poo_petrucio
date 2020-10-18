@@ -36,9 +36,10 @@ class Contato{
 public:
     string name;
     vector<Fone> fones;
-    bool favorito;
+    bool favoritado;
     Contato(string name = "", vector<Fone> fones = vector<Fone>()):
         name(name), fones(fones){
+            this->favoritado=false;
     }
 
     string getName(){
@@ -70,11 +71,11 @@ public:
 
 
 ostream& operator<<(ostream& ost, Contato& contato){
-    ost << "- " << contato.getName();
-    if(!contato.getFones().empty())
-        cout << " ";
-    for(Fone fone : contato.getFones())
-        ost << fone;
+    ost << (contato.favoritado ? "@" : "- ");
+    ost << " " << contato.getName() << " ";
+    for(auto fone: contato.fones)
+        cout << fone;
+    ost << endl;    
     return ost;
 }
 
@@ -84,34 +85,35 @@ T get(stringstream& ss){
     ss >> t;
     return t;
 }
-struct Agenda{
-    vector<Contato> contatos;
-    
-    int findContato(string name){
-        for(int i=0;i< (int) contatos.size() ;i++){
-            if(contatos[i].getName()==name) return i;
+class Agenda{
+public:
+    vector<Contato*> contatos;
+    vector<Contato*> favoritos;
+
+    int findContato(string name, vector<Contato*> aux){
+        for(int i=0;i< (int) aux.size() ;i++){
+            if(aux[i]->getName()==name) return i;
         }
         return -1;
     }
     bool validarContato(string name){
         for(int i=0;i< (int) contatos.size() ;i++){
-            if(contatos[i].getName()==name) return true;
+            if(contatos[i]->getName()==name) return true;
         }
         return false;
     }
     
     void addContato(string nome, string id, string fone){
-        Contato *contato=nullptr;
-        if(validarContato(nome)==false){
+        Contato *contato=getContato(nome);
+        if(contato == nullptr){
             contato=new Contato(nome);
             contato->addFone(id,fone);
-            contatos.push_back(*contato);
-            
+            contatos.push_back(contato);
         }    
-        else{
+        else if(contato!=nullptr){
             for(int i=0; i< contatos.size(); i++){
-                if(contatos[i].getName()==nome){
-                    contatos[i].addFone(id,fone);
+                if(contatos[i]->getName()==nome){
+                    contatos[i]->addFone(id,fone);
                 }
             }
         }
@@ -120,65 +122,85 @@ struct Agenda{
     void rmFone(string name, int index){
         if(validarContato(name)==false) return;
         for(int i=0;i< (int) contatos.size() ;i++){
-            if(contatos[i].getName()==name){
-                contatos[i].rmFone(index);
+            if(contatos[i]->getName()==name){
+                contatos[i]->rmFone(index);
             }
         }
     }
     void rmContato(string name){
         if(validarContato(name)==false) return;
         for(int i=0;i< (int) contatos.size() ;i++){
-            if(contatos[i].getName()==name){
-                contatos[i].rmAllFones();
+            if(contatos[i]->getName()==name){
+                desfavoritar(name);
+                contatos[i]->rmAllFones();
                 contatos.erase(contatos.begin()+i);
             }
         }
     }
-    vector<Contato> getContatos(){
-        vector<Contato> aux;
+    vector<Contato*> getContatos(){
+        vector<Contato*> aux;
         for(int i=0;i< (int) contatos.size() ;i++){
             aux.push_back(contatos[i]);
         }
         return aux;
     }
-    vector<Contato> search(string parttern){
-        vector<Contato> resp;
+    vector<Contato*> search(string parttern){
+        vector<Contato*> resp;
         for(auto par: contatos){
-            if(par.getName().find(parttern) != string::npos){
+            if(par->getName().find(parttern) != string::npos){
                 resp.push_back(par);
             }    
         }
         return resp;
     }
-    
-    
+    Contato *getContato(string name){
+        if(validarContato(name)==true){
+            Contato *aux = contatos[findContato(name, contatos)];
+            return aux;
+        }return nullptr;
+    }
+    friend ostream& operator<<(ostream& ost, Agenda& agenda){
+        for(Contato *contato : agenda.getContatos())
+            cout << *contato ;
+        return ost;
+    }
+    void favoritar(string name){
+        Contato *aux= getContato(name);
+        if(aux==nullptr){
+            cout << "Fail: Contato não existente\n";
+            return;
+        }else if(aux!=nullptr && aux->favoritado == false){
+            aux->favoritado=true;
+            favoritos.push_back(aux);
+        }else if(aux!=nullptr && aux->favoritado == true) cout << "Fail: contato já estar favoritado\n";
+        std::sort(favoritos.begin(), favoritos.end());
+    }
+    void desfavoritar(string name){
+        Contato *aux= getFavorito(name);
+        if(aux->favoritado == true){
+            aux->favoritado=false;
+            aux->rmAllFones();
+            favoritos.erase(favoritos.begin()+findContato(name, favoritos));
+        }else if(aux->favoritado == false) cout << "Fail: contato não estar favoritado\n";
+    }
+    vector<Contato*> getFavoritos(){
+        vector<Contato*> aux;
+        for(int i=0;i< (int) favoritos.size() ;i++){
+            aux.push_back(favoritos[i]);
+        }
+        return aux;
+    }
+    Contato *getFavorito(string name){
+        if(findContato(name, favoritos) !=-1){
+            Contato *aux = favoritos[findContato(name,favoritos)];
+            return aux;
+        }return nullptr;
+    }
 };
-class servicoFavoitagem{
-    Agenda agenda;
-    vector<Contato> favoritos;
-    void favoritar(string id){
-
-    }
-    void desfavoritar(string id){
-
-    }
-    vector<Contato> getfavoritos(){
-        return favoritos;
-    }
-};
-
-
-ostream& operator<<(ostream& ost, Agenda& agenda){
-    for(Contato contato : agenda.getContatos())
-        cout << contato<< endl;
-    return ost;
-}
-
 struct Terminal{
     void menu(){
         Agenda agenda;
         while(true){
-            
             string line, cmd;
             getline(cin, line);
             cout << "$" << line << endl;
@@ -191,13 +213,13 @@ struct Terminal{
             else if(cmd == "add"){
                 string nome;
                 ss >> nome;
-                string id_fone;//id:fon                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         v))Contato contato(nome);
+                string id_fone;//id:fone                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        v))Contato contato(nome);
                 while(ss >> id_fone){
-                    stringstream sif(id_fone);
-                    string id, fone;
-                    getline(sif, id, ':');
-                    sif >> fone;
-                    agenda.addContato(nome,id,fone);
+                    stringstream sif(id_fone); 
+                    string id, fone; 
+                    getline(sif, id, ':'); 
+                    sif >> fone; 
+                    agenda.addContato(nome,id,fone); 
                 }
             }
             else if(cmd == "rmContato"){
@@ -219,6 +241,22 @@ struct Terminal{
             }
             else if(cmd == "agenda"){
                 cout << agenda << "\n";
+            }
+            else if(cmd == "fav"){
+                string nome;
+                ss >> nome;
+                agenda.favoritar(nome);
+            }
+            else if(cmd == "favorited"){
+                auto aux= agenda.getFavoritos();
+                for(int i=0; i<(int) aux.size(); i++){
+                    cout << *aux[i]; 
+                }
+            }
+            else if(cmd == "unfav"){
+                string nome;
+                ss >> nome;
+                agenda.desfavoritar(nome);
             }
             else{
                 cout << "fail: comando invalido";
