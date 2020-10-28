@@ -3,8 +3,8 @@
 - Com quem e como você fez
     - Tive que assistir as aulas de novo e dei uma lida no learncpp tambem.
 - O que aprendeu e sabe fazer
-	Aprendi a parte de herança.
+    - Aprendi a parte de herança.
 - O que tem dificuldade ainda
-	Só tive um pequeno problema na hora de usar a precisão com double.
+    - Só tive um pequeno problema na hora de usar a precisão com double.
 - Quanto tempo levou pra fazer a atividade
-	Umas 8 horas.
+    - Umas 8 horas.

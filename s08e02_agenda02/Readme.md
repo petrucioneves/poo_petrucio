@@ -3,8 +3,8 @@
 - Com quem e como você fez
     - Tive uma pequena ajuda do Google na parte de ordenação.
 - O que aprendeu e sabe fazer
-	Aprendi a parte de ordenação, de como fazer, e tambem aprendi como é feita a função search.
+    - Aprendi a parte de ordenação, de como fazer, e tambem aprendi como é feita a função search.
 - O que tem dificuldade ainda
-	De mexer em algumas funções do vector, tal como a eraser().
+    - De mexer em algumas funções do vector, tal como a eraser().
 - Quanto tempo levou pra fazer a atividade
-	Umas 3 horas.
+    - Umas 3 horas.

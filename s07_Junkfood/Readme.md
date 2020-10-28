@@ -3,8 +3,8 @@
 - Com quem e como você fez
     - Tive uma pequena ajuda do Google e do meu amigo Juan, na parte de impressão, pois não estava imprimindo.
 - O que aprendeu e sabe fazer
-	Aprendi na parte de definir o tamanho do float usando o cout.precision(), e na hora de criar as espirais.
+    - Aprendi na parte de definir o tamanho do float usando o cout.precision(), e na hora de criar as espirais.
 - O que tem dificuldade ainda
-	Na hora de matar as alocações de memoria
+    - Na hora de matar as alocações de memoria
 - Quanto tempo levou pra fazer a atividade
-	Umas 5 horas.
+    - Umas 5 horas.
