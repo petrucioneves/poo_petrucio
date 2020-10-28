@@ -1,0 +1,10 @@
+- O que você fez
+    - Adicionei o map de favoritos e funçoes de favoritar e desfavoritar, alem de adicionar a variavel bool de favorito.
+- Com quem e como você fez
+    - O learncpp e tambem o raio-x do problema.
+- O que aprendeu e sabe fazer
+	Aprendi a mexer com maps.
+- O que tem dificuldade ainda
+	As vezes na hora de fazer a busca em maps.
+- Quanto tempo levou pra fazer a atividade
+	Umas 5 horas.
