@@ -1,0 +1,10 @@
+- O que você fez
+    - Inicialmente, criei duas classes, a Kid, que teria todas as caracteristicas de uma criança, e a outra seria o trampolim, que teria os vetores de crianças que estariam na fila e tambem estaria no pula-pula, para assim ter um controle. As funçoes seriam de adicionar as crianças na fila, colocar no pula-pula, de tirar do pula-pula, de o pai ir buscar. Depois criei outra classe, que seria a de conta, nela teria as caracteristicas da conta de cada criança que entra no pula pula, depois criei um vetor de caixa, que receberia quanto cada criança estaria devendo, e tambem as funções de pagar contas, de mostrar saldos, de criar conta, de mostrar o total do dia. E todas essas funçôes e vetores, vao estar em trampolim, assim como a função do terminal tambem.
+- Com quem e como você fez
+    - Uma ajuda do learncpp, para tirar duvidas de alguns comandos.
+- O que aprendeu e sabe fazer
+    - Melhorei a minha forma de usar os vetores, e ja sabia controlar o que seria publico e privado em classes.
+- O que tem dificuldade ainda
+    - Tive uma pequena dificuldade na hora de imprimir.
+- Quanto tempo levou pra fazer a atividade
+    - Umas 5 horas.
