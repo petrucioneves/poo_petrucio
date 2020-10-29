@@ -20,18 +20,19 @@ public:
         }
         likes_Twe.push_front(userName);
     }
-    string to_string(){
-        string saida= std::to_string(idTw_Twe)+":"+userName_Twe+"( "+msg_Twe+" )";
-        if(likes_Twe.size()>0){
-            saida+= "[ ";
-            for(string aux: likes_Twe){
-                saida += aux + " ";
-            }
-            saida+="]\n";
-        }
-        return saida; 
-    }
 };
+
+ostream& operator<<(ostream& ost, const Tweet& tweet){
+    ost << std::to_string(tweet.idTw_Twe) << ":" << tweet.userName_Twe << "( " << tweet.msg_Twe <<" )";
+    if(tweet.likes_Twe.size()>0){
+        ost << "[ ";
+        for(string aux: tweet.likes_Twe)
+            ost << aux << " ";
+        ost << "]\n";
+    }
+    return ost;
+}
+
 class User{
 public:    
     string userName_User;
@@ -40,27 +41,29 @@ public:
     list<Tweet> timeline_User;
     list<Tweet> myTweets_User;
 
-    list<User> seguidores_User;
-    list<User> seguidos_User;
+    list<User*> seguidores_User;
+    list<User*> seguidos_User;
   
     User(string userName): userName_User(userName){
         naoLidos_User=0;
     }
-    void follow_User(User other_User){
+    void follow_User(User* other_User){
         for(auto aux: seguidos_User){
-            if(aux.userName_User==other_User.userName_User){
-                cout << "fail: " << aux.userName_User << " ja segue "<< other_User.userName_User << "\n";
+            if(aux->userName_User == other_User->userName_User){
+                cout << "fail: " << this->userName_User << " ja segue "<< other_User->userName_User << "\n";
                 return;
             }
         }
-        seguidos_User.push_back(other_User);
-        other_User.seguidores_User.push_back(*this);
+
+        this->seguidos_User.push_back(other_User);
+        other_User->seguidores_User.push_back(this);
     }
-    void twittar_User(Tweet msg){
-        myTweets_User.push_front(msg);
+
+    void twittar_User(Tweet * msg){
+        myTweets_User.push_front(*msg);
         for(auto aux: seguidores_User){
             naoLidos_User++;
-            aux.timeline_User.push_front(msg);
+            aux->timeline_User.push_front(*msg);
         }
     }
     void darLike_User(int idTw){
@@ -85,64 +88,95 @@ public:
         }
         return timeline_tweets;
     }
-    string toString_User(){
-        string saida_User=this->userName_User + "\n";
-        saida_User+="  seguidos   [ ";
-        for(auto aux= seguidos_User.begin(); aux!= seguidos_User.end(); aux++){
-            saida_User += aux.userName_User + " ";
-        }
-        saida_User+="]\n";
-        saida_User+="  seguidores [ ";
-        for(auto aux : seguidores_User){
-            saida_User+=aux.userName_User+" ";
-        }
-        saida_User+="]\n";
-        return saida_User;
-    }
 };
+
+ostream& operator<<(ostream& ost, const User& user){
+    ost << user.userName_User << "\n";
+    ost << "  seguidos   [ ";
+    for(auto aux : user.seguidos_User){
+        ost << aux->userName_User << " ";
+    }
+    ost << "]\n";
+
+    ost << "  seguidores [ ";
+    for(auto aux : user.seguidores_User){
+        ost << aux->userName_User << " ";
+    }
+    ost << "]\n";
+    return ost;
+}
+
 class Tweet_Generator{
-    list<Tweet*> r_tw_Ge;
+public:    
+    list<Tweet*> repors_tw_Ge;
     int nextId;
-    Tweet_Generator(list<Tweet*> r_tw): r_tw_Ge(r_tw){}
+    Tweet_Generator(list<Tweet*> r_tw): repors_tw_Ge(r_tw){}
     Tweet * create_Tw_Generator(string userName, string msg){
         Tweet *aux= new Tweet(nextId, userName, msg);
-        r_tw_Ge.push_front(aux);
+        repors_tw_Ge.push_back(aux);
         nextId++;
         return aux;
     }
 };
+
 class Twiter{
 public:    
-    list<User> usuarios;
-    list<Tweet_Generator> repositorio;
+    list<User*> usuarios;
+    list<Tweet*> repositorio;
     void addUser_Twi(string userName){
         for(auto it: usuarios){
-            if(it.userName_User==userName){
+            if(it->userName_User==userName){
                 cout << "fail: usuario já existe\n";
                 return;
             }
         }
-        usuarios.push_back(User(userName));
+        usuarios.push_back(new User(userName));
     }
     void follow_Twi(string user, string other){
         for(auto aux: usuarios){
-            if(aux.userName_User==user){
-                aux.follow_User(User(other));
-                return;
+            if(aux->userName_User == user){
+                for(auto it : usuarios)
+                    if(it->userName_User == other){
+                        aux->follow_User(it);
+                        return;
+                    }
             }
         }
         cout << "fail: usuario "<< user << " não existe\n";
     }
-    void show_Twi(){
-        for (auto aux: usuarios){
-            cout << aux.toString_User();
+    void Twitar_Twi(string user, string msg){
+        Tweet_Generator aux {repositorio};
+        for(auto au: usuarios){
+            if(au->userName_User==user){
+                
+                au->twittar_User(aux.create_Tw_Generator(user, msg));
+            }
         }
+    }
+    void timeline(string nome){
+        list<Tweet*> auu;
+        for (auto aux: usuarios){
+            if(aux->userName_User==nome){
+                for (auto i ; )
+                {
+                    /* code */
+                }
+                
+            }
+        }
+        
     }
 };
 
+ostream& operator<<(ostream& ost, const Twiter& twiter){
+    for(auto aux : twiter.usuarios)
+        ost << *aux;
+    return ost;
+}    
+
 
 int main(){
-    Twiter twitter;
+    Twiter twitter;   
     while(true){
         string line, cmd;
         getline(cin, line);
@@ -162,31 +196,8 @@ int main(){
             ss >> nome >> other;
             twitter.follow_Twi(nome, other);
         }
-        else if(cmd == "addTer"){
-            string nome, insalubre;
-            int hora;
-            ss >> nome >> hora >> insalubre;
-            //empresa.addFuncionario_Ter(nome, hora, insalubre);
-        }
-        else if(cmd == "rm"){
-            string nome;
-            ss >> nome;
-            //empresa.remove_funcionario(nome);
-        }
-        else if(cmd == "addDiaria"){
-            string nome;
-            ss >> nome;
-            //empresa.addDiara_emp(nome);
-        }
-        else if(cmd == "setBonus"){
-            double bonus;
-            ss >> bonus;
-            //empresa.calBonus(bonus);
-        }
         else if(cmd == "show"){
-            string id;
-            ss >> id;
-            twitter.show_Twi();
+            cout << twitter;
         }
         else{
             cout << "fail: comando invalido";
